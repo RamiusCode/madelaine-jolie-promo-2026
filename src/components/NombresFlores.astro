@@ -1,0 +1,611 @@
+---
+// src/components/NombresFlores.astro
+// Primera sección después de la portada: la tarjeta de graduación.
+//   - El sobre plateado con la tarjeta "Estás invitado a la ceremonia de
+//     graduación" asomando, y una foto instantánea apoyada al costado.
+//   - El birrete como emblema, el nombre del graduado y su título.
+//   - Dos fotos instantáneas abajo.
+//
+// El fondo azul noche lo pone el Layout (fijo, detrás de todas las
+// secciones); esta sección es transparente.
+//
+// Imágenes:
+//   /imagenes/sobre-abierto.webp     sobre abierto con borla (de sobre2.png)
+//   /imagenes/portada-sombrero.webp  birrete con pergamino
+//
+// ── DATOS EDITABLES ───────────────────────────────────────────
+// El nombre se parte en dos: los dos nombres de pila, grandes en cursiva
+// (Great Vibes, una sola línea), y los apellidos en mayúsculas debajo.
+const nombre = "Madelaine Jolie";
+const apellidos = "Calizaya Torrez";
+const promocion = "Promoción 2026";
+const colegio = "U. E. Libertador Simón Bolívar “A”";
+const tarjetaTexto = "Estás invitado a la ceremonia de";
+const tarjetaDestacado = "Graduación";
+
+// Cada palabra en sus letras: así el script puede hacer entrar las letras
+// una por una. El espacio entre palabras queda como texto normal.
+const enLetras = (texto: string) =>
+    texto.split(" ").map((palabra) => [...palabra]);
+const nombreLetras = enLetras(nombre);
+const apellidosLetras = enLetras(apellidos);
+/*
+   Fotos de las instantáneas: poner acá la ruta de cada una (comprimida,
+   menos de 300 KB), por ejemplo "/imagenes/foto1.webp". Mientras la ruta
+   esté vacía se dibuja el marco con un birrete en su lugar.
+*/
+const fotos = [
+    { src: "/imagenes/foto-graduada-1.webp", alt: "Madelaine Calizaya, graduada" }, // junto al sobre
+    { src: "/imagenes/foto-graduada-retrato.webp", alt: "Madelaine Calizaya con su birrete" }, // abajo a la izquierda
+    { src: "/imagenes/foto-promocion-recorte.webp", alt: "Promoción 2026 del colegio" }, // abajo a la derecha
+];
+// ──────────────────────────────────────────────────────────────
+---
+
+<section id="sobre-novios" class="seccion">
+    <div class="pagina">
+        <!-- Sobre con la tarjeta asomando + foto al costado -->
+        <div class="escena">
+            <!--
+               Sobre abierto en tres capas: el sobre entero atrás, la
+               tarjeta en el medio y, adelante, la misma imagen recortada
+               a la parte de abajo (bolsillo y cintas). Así la tarjeta
+               queda metida adentro, como si saliera del sobre.
+            -->
+            <div class="sobre-conjunto">
+                <img
+                    src="/imagenes/sobre-abierto.webp"
+                    alt=""
+                    width="807"
+                    height="900"
+                    class="sobre-img sobre-atras"
+                    aria-hidden="true"
+                />
+                <!-- La ventana recorta lo que baja del borde del sobre: al
+                     entrar, la tarjeta sube desde adentro y sale del bolsillo -->
+                <div class="tarjeta-ventana">
+                    <div class="tarjeta" id="nf-tarjeta">
+                        <p class="tarjeta-texto">
+                            {tarjetaTexto}
+                            <span class="tarjeta-destacado">{tarjetaDestacado}</span>
+                        </p>
+                    </div>
+                </div>
+                <img
+                    src="/imagenes/sobre-abierto.webp"
+                    alt=""
+                    width="807"
+                    height="900"
+                    class="sobre-img sobre-frente"
+                    aria-hidden="true"
+                />
+            </div>
+
+            <figure class="polaroid p-lado">
+                {
+                    fotos[0].src ? (
+                        <img
+                            src={fotos[0].src}
+                            alt={fotos[0].alt}
+                            class="foto"
+                            loading="lazy"
+                        />
+                    ) : (
+                        <div class="foto vacia" role="img" aria-label={fotos[0].alt}>
+                            <img
+                                src="/imagenes/portada-sombrero.webp"
+                                alt=""
+                                width="700"
+                                height="467"
+                                aria-hidden="true"
+                            />
+                        </div>
+                    )
+                }
+            </figure>
+        </div>
+
+        <!-- Emblema + nombre + título -->
+        <div class="bloque-nombre">
+            <img
+                src="/imagenes/escudo-colegio.webp"
+                alt="Escudo de la U. E. Libertador Simón Bolívar"
+                width="437"
+                height="480"
+                class="emblema"
+            />
+            <h2 class="nombre-completo" aria-label={`${nombre} ${apellidos}`}>
+                <span class="nombre" aria-hidden="true">
+                    {
+                        nombreLetras.map((palabra, i) => (
+                            <>
+                                <span class="palabra">
+                                    {palabra.map((l) => (
+                                        <span class="letra">{l}</span>
+                                    ))}
+                                </span>
+                                {i < nombreLetras.length - 1 && " "}
+                            </>
+                        ))
+                    }
+                </span>
+                <span class="apellidos" aria-hidden="true">
+                    {
+                        apellidosLetras.map((palabra, i) => (
+                            <>
+                                <span class="palabra">
+                                    {palabra.map((l) => (
+                                        <span class="letra">{l}</span>
+                                    ))}
+                                </span>
+                                {i < apellidosLetras.length - 1 && " "}
+                            </>
+                        ))
+                    }
+                </span>
+            </h2>
+            <span class="divisor" aria-hidden="true"></span>
+            <p class="titulo">
+                <span class="promocion">{promocion}</span>
+                <span class="colegio">{colegio}</span>
+            </p>
+        </div>
+
+        <!-- Dos instantáneas abajo -->
+        <div class="fotos-abajo">
+            {
+                [1, 2].map((n) => (
+                    <figure class:list={["polaroid", n === 1 ? "p-izq" : "p-der"]}>
+                        {fotos[n].src ? (
+                            <img
+                                src={fotos[n].src}
+                                alt={fotos[n].alt}
+                                class="foto"
+                                loading="lazy"
+                            />
+                        ) : (
+                            <div class="foto vacia" role="img" aria-label={fotos[n].alt}>
+                                <img
+                                    src="/imagenes/portada-sombrero.webp"
+                                    alt=""
+                                    width="700"
+                                    height="467"
+                                    aria-hidden="true"
+                                />
+                            </div>
+                        )}
+                    </figure>
+                ))
+            }
+        </div>
+    </div>
+</section>
+
+<style>
+    .seccion {
+        position: relative;
+        width: 100%;
+        overflow: hidden;
+        /* Transparente: se ve el fondo fijo del Layout */
+    }
+
+    .pagina {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 4.5dvh;
+        padding: 9dvh 7% 9dvh;
+    }
+
+    /* ── Sobre + tarjeta + foto ─────────────────────────────── */
+    .escena {
+        position: relative;
+        width: 100%;
+        /* El alto lo da el sobre; la foto cuelga de su esquina de abajo */
+        padding-bottom: 12%;
+    }
+
+    /* El sobre va girado hacia la izquierda, como en el modelo */
+    .sobre-conjunto {
+        position: relative;
+        width: 76%;
+        margin-left: 1%;
+        transform: rotate(-6deg);
+    }
+
+    /* La tarjeta, entre el fondo del sobre y su bolsillo. Arriba y a los
+       costados deja pasar (la tarjeta sube); abajo corta en el borde. */
+    .tarjeta-ventana {
+        position: absolute;
+        inset: 0;
+        z-index: 2;
+        clip-path: inset(-40% -5% 1% -5%);
+    }
+
+    .tarjeta {
+        position: absolute;
+        left: 17%;
+        right: 17%;
+        top: 12%;
+        height: 58%;
+        padding: 6% 5%;
+        box-sizing: border-box;
+        border-radius: 4px;
+        background-image: linear-gradient(180deg, #ffffff 0%, #e6edf6 100%);
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+        transform: rotate(1.5deg);
+        text-align: center;
+    }
+
+    .tarjeta-texto {
+        margin: 0;
+        font-family: "Cormorant Garamond", Georgia, serif;
+        font-weight: 400;
+        font-size: clamp(0.78rem, 3.3vw, 0.98rem);
+        line-height: 1.25;
+        color: #1c3a63;
+    }
+
+    .tarjeta-destacado {
+        display: block;
+        margin-top: 0.15em;
+        font-family: "Great Vibes", cursive;
+        font-weight: 400;
+        font-size: 1.5em;
+        line-height: 1.1;
+        color: #1a4f55;
+    }
+
+    .sobre-img {
+        display: block;
+        width: 100%;
+        height: auto;
+        user-select: none;
+        -webkit-user-drag: none;
+    }
+
+    .sobre-atras {
+        position: relative;
+        z-index: 1;
+        filter: drop-shadow(0 12px 18px rgba(0, 0, 0, 0.55));
+    }
+
+    /* Solo la parte de abajo: bolsillo, cintas y borla */
+    .sobre-frente {
+        position: absolute;
+        z-index: 3;
+        left: 0;
+        top: 0;
+        pointer-events: none;
+        clip-path: polygon(
+            0 36%,
+            42% 63%,
+            58% 63%,
+            100% 36%,
+            100% 100%,
+            0 100%
+        );
+    }
+
+    /* ── Instantáneas ───────────────────────────────────────── */
+    .polaroid {
+        margin: 0;
+        padding: 3.2% 3.2% 10%;
+        box-sizing: border-box;
+        background-image: linear-gradient(#ffffff, #f1f3f6);
+        box-shadow:
+            0 8px 20px rgba(0, 0, 0, 0.5),
+            0 0 0 1px rgba(255, 255, 255, 0.4);
+    }
+
+    .foto {
+        display: block;
+        width: 100%;
+        aspect-ratio: 4 / 5;
+        object-fit: cover;
+    }
+
+    /* Mientras no hay foto: un cuadro azul con el birrete */
+    .foto.vacia {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-image: linear-gradient(160deg, #123066 0%, #0a1a3a 55%, #0e4d4a 100%);
+    }
+
+    .foto.vacia img {
+        width: 62%;
+        height: auto;
+        opacity: 0.85;
+    }
+
+    /* La foto se apoya en la esquina de abajo a la derecha del sobre,
+       también girada, tapando un pedazo de él */
+    .p-lado {
+        position: absolute;
+        z-index: 4;
+        right: 1%;
+        bottom: 0;
+        width: 38%;
+        transform: rotate(6deg);
+    }
+
+    /* ── Nombre ─────────────────────────────────────────────── */
+    .bloque-nombre {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 2.6dvh;
+        width: 100%;
+        text-align: center;
+    }
+
+    .emblema {
+        /* El escudo es casi cuadrado: el alto manda */
+        height: min(15dvh, 28vw);
+        width: auto;
+        /* Solo sombra, sin brillo de color alrededor */
+        filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.6));
+    }
+
+    /* Great Vibes: sin mayúsculas forzadas ni espaciado entre letras */
+    .nombre-completo {
+        margin: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 1.8dvh;
+        width: 100%;
+    }
+
+    .nombre {
+        display: block;
+        font-family: "Great Vibes", cursive;
+        font-weight: 400;
+        /* Dos nombres en una sola línea: el tamaño sigue al ancho */
+        white-space: nowrap;
+        font-size: clamp(2.3rem, 11.5vw, 3.4rem);
+        line-height: 1.1;
+        /*
+           Las colitas de la M y la J se pasan del borde de la caja y el
+           degradado dorado solo pinta adentro de ella: se cortaban. El
+           relleno agranda la caja y el margen negativo deja todo en su
+           lugar.
+        */
+        padding: 0.2em 0.35em;
+        margin: -0.2em -0.35em;
+        letter-spacing: normal;
+        text-transform: none;
+        /* El degradado dorado va en cada letra (.letra) */
+        filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.7));
+    }
+
+    /*
+       Cada letra lleva su propio degradado dorado (vertical, así que se ve
+       igual que uno solo). El relleno lateral deja que las colitas de la
+       cursiva se pasen del borde de la letra sin cortarse; el margen
+       negativo deja todo en su lugar.
+    */
+    .letra {
+        display: inline-block;
+        padding: 0.2em 0.18em;
+        margin: -0.2em -0.18em;
+        background-image: linear-gradient(180deg, #fff6dc 0%, #f0cf86 55%, #c99a4e 100%);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+    }
+
+    .palabra {
+        display: inline-block;
+        white-space: nowrap;
+    }
+
+    /* Resto del nombre: una sola línea, mayúsculas, serif recta */
+    .apellidos {
+        display: block;
+        white-space: nowrap;
+        font-family: "Cormorant Garamond", Georgia, serif;
+        font-style: normal;
+        font-weight: 400;
+        font-variant-numeric: lining-nums;
+        font-size: clamp(0.95rem, 4.5vw, 1.25rem);
+        text-transform: uppercase;
+        letter-spacing: 0.24em;
+        /* Dorado, igual que los nombres: el degradado va en cada .letra */
+        filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.7));
+    }
+
+    .divisor {
+        position: relative;
+        width: min(56%, 200px);
+        height: 1px;
+        background-image: linear-gradient(
+            90deg,
+            rgba(226, 184, 102, 0),
+            rgba(226, 184, 102, 0.85) 50%,
+            rgba(226, 184, 102, 0)
+        );
+    }
+
+    .divisor::after {
+        content: "";
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        width: 7px;
+        height: 7px;
+        transform: translate(-50%, -50%) rotate(45deg);
+        background-image: linear-gradient(135deg, #fff3cf, #c99a4e);
+    }
+
+    .titulo {
+        margin: 0;
+        max-width: 88%;
+        /* Cormorant fina y elegante; lining-nums hace que el 2026 tenga
+           todos los números del mismo alto (por defecto los dibuja
+           "antiguos", unos más altos que otros) */
+        font-family: "Cormorant Garamond", Georgia, serif;
+        font-style: normal;
+        font-weight: 400;
+        font-variant-numeric: lining-nums;
+        font-size: clamp(0.9rem, 4.1vw, 1.15rem);
+        line-height: 1.3;
+        letter-spacing: 0.04em;
+        color: #ffffff;
+        text-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
+    }
+
+    /* "PROMOCIÓN 2026" entre dos filetes dorados */
+    .promocion {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.9em;
+        font-size: 1.05em;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.26em;
+        white-space: nowrap;
+    }
+
+    .promocion::before,
+    .promocion::after {
+        content: "";
+        width: 2.2em;
+        height: 1px;
+        background-image: linear-gradient(
+            90deg,
+            rgba(226, 184, 102, 0),
+            rgba(226, 184, 102, 0.9)
+        );
+    }
+
+    .promocion::after {
+        transform: scaleX(-1);
+    }
+
+    .colegio {
+        display: block;
+        margin-top: 0.55em;
+        font-weight: 400;
+        font-size: 0.95em;
+        line-height: 1.5;
+    }
+
+    /* ── Fotos de abajo ─────────────────────────────────────── */
+    .fotos-abajo {
+        display: flex;
+        justify-content: center;
+        gap: 6%;
+        width: 100%;
+    }
+
+    .fotos-abajo .polaroid {
+        width: 44%;
+    }
+
+    .p-izq {
+        transform: rotate(-4deg) translateY(1.5dvh);
+    }
+
+    .p-der {
+        transform: rotate(3.5deg);
+    }
+</style>
+
+<script>
+    import { gsap } from "gsap";
+
+    document.addEventListener("DOMContentLoaded", () => {
+        const menosMovimiento = window.matchMedia(
+            "(prefers-reduced-motion: reduce)",
+        ).matches;
+        if (menosMovimiento) return;
+
+        const q = (s: string) => document.querySelector<HTMLElement>(`#sobre-novios ${s}`);
+        const qa = (s: string) =>
+            gsap.utils.toArray<HTMLElement>(`#sobre-novios ${s}`);
+
+        const escena = q(".escena");
+        const tarjeta = document.getElementById("nf-tarjeta");
+        const emblema = q(".emblema");
+        const letrasNombre = qa(".nombre .letra");
+        const letrasApellidos = qa(".apellidos .letra");
+        const divisor = q(".bloque-nombre .divisor");
+        const promocion = q(".promocion");
+        const colegio = q(".colegio");
+        const fotoIzq = q(".fotos-abajo .p-izq");
+        const fotoDer = q(".fotos-abajo .p-der");
+
+        /*
+           La tarjeta arranca metida dentro del sobre (bajada y por detrás
+           del bolsillo) y sube despacio hasta su lugar, girando apenas,
+           como si alguien la sacara del sobre.
+        */
+        const escondida = { yPercent: 100, rotation: -4 };
+
+        // Todo arranca escondido. Las fotos de abajo solo se mueven de
+        // costado (x) para no perder la inclinación que traen por CSS.
+        const ocultar = () => {
+            gsap.set(escena, { opacity: 0, y: 26 });
+            gsap.set(emblema, { opacity: 0, y: -22, scale: 0.8 });
+            gsap.set(letrasNombre, { opacity: 0, y: 30, scale: 0.9 });
+            gsap.set(letrasApellidos, { opacity: 0, y: 14 });
+            gsap.set(divisor, { opacity: 0, scaleX: 0 });
+            gsap.set([promocion, colegio], { opacity: 0, y: 16 });
+            gsap.set(fotoIzq, { opacity: 0, x: -80 });
+            gsap.set(fotoDer, { opacity: 0, x: 80 });
+            if (tarjeta) gsap.set(tarjeta, escondida);
+        };
+
+        const entrar = () => {
+            const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
+
+            // El sobre y la tarjeta que sale de él
+            tl.to(escena, { opacity: 1, y: 0, duration: 1.2 }, 0);
+            if (tarjeta) {
+                tl.to(
+                    tarjeta,
+                    { yPercent: 0, rotation: 1.5, duration: 2 },
+                    0.8,
+                );
+            }
+
+            // El nombre: el birrete baja y las letras aparecen una a una
+            tl.to(emblema, { opacity: 1, y: 0, scale: 1, duration: 1 }, 0.2);
+            tl.to(
+                letrasNombre,
+                { opacity: 1, y: 0, scale: 1, duration: 1, stagger: 0.07 },
+                0.5,
+            );
+            tl.to(
+                letrasApellidos,
+                { opacity: 1, y: 0, duration: 0.8, stagger: 0.04 },
+                1.4,
+            );
+            tl.to(
+                divisor,
+                { opacity: 1, scaleX: 1, duration: 1, ease: "power2.inOut" },
+                2.1,
+            );
+            tl.to(promocion, { opacity: 1, y: 0, duration: 0.9 }, 2.3);
+            tl.to(colegio, { opacity: 1, y: 0, duration: 0.9 }, 2.5);
+
+            // Las dos instantáneas llegan cada una de su lado
+            tl.to(fotoIzq, { opacity: 1, x: 0, duration: 1.2 }, 2.4);
+            tl.to(fotoDer, { opacity: 1, x: 0, duration: 1.2 }, 2.6);
+        };
+
+        const portada = document.getElementById("portada-section");
+
+        if ((window as any).portadaAbierta || !portada) {
+            ocultar();
+            entrar();
+        } else {
+            // Con portada, esperan tapadas hasta que se abre el sobre
+            ocultar();
+            window.addEventListener("portada-abierta", entrar, { once: true });
+        }
+    });
+</script>

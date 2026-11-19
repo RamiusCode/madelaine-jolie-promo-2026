@@ -1,0 +1,60 @@
+---
+// src/components/Invitacion.astro
+// El cuerpo completo de la invitación, en un solo lugar y en orden.
+import Portada from "./Portada.astro";
+import NombresFlores from "./NombresFlores.astro";
+import Padres from "./Padres.astro";
+import Padrinos from "./Padrinos.astro";
+import Fecha from "./Fecha.astro";
+import ParFotos from "./ParFotos.astro";
+import Contador from "./Contador.astro";
+import Direccion from "./Direccion.astro";
+import Confirmacion from "./Confirmacion.astro";
+import BotonMusica from "./BotonMusica.astro";
+
+/*
+   Cuántos lugares reserva esta invitación. Lo manda la página:
+   index.astro no le pasa nada y queda en 0; pase[cantidad].astro le pasa
+   el número de la URL (/pase1, /pase2...). Hoy ninguna sección lo usa,
+   queda listo para cuando se conecte el sistema de invitados.
+*/
+export interface Props {
+    pases?: number;
+}
+const { pases = 0 } = Astro.props;
+---
+
+<!-- PORTADA (cubre todo hasta que se toca el sobre) -->
+<Portada />
+
+<!-- CONTENIDO DE LA INVITACIÓN -->
+<div id="contenido-principal" data-pases={pases}>
+    <NombresFlores />
+    <Padres />
+    <Padrinos />
+    <ParFotos
+        fotos={[
+            { src: "/imagenes/foto-reina.webp", alt: "Graduada con su banda de reina" },
+            { src: "/imagenes/foto-bandera.webp", alt: "Abanderada del colegio" },
+        ]}
+    />
+    <Fecha />
+    <ParFotos
+        fotos={[
+            { src: "/imagenes/foto-corazon.webp", alt: "Dos graduadas junto a un corazón de ramas" },
+            { src: "/imagenes/foto-togas.webp", alt: "Dos graduadas con sus togas y bandas 2026" },
+        ]}
+    />
+    <Contador />
+    <Direccion />
+    <ParFotos
+        fotos={[
+            { src: "/imagenes/foto-viva-1.webp", alt: "Estudiante con bandera frente al cartel ¡Viva Santa Cruz!" },
+            { src: "/imagenes/foto-viva-2.webp", alt: "Tres personas con las banderas del colegio", aspecto: "4 / 3" },
+        ]}
+    />
+    <Confirmacion pases={pases} />
+</div>
+
+<!-- El control flotante de la esquina: pausa y reanuda la melodía -->
+<BotonMusica />

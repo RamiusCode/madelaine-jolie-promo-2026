@@ -1,0 +1,152 @@
+---
+// src/components/Fecha.astro
+import { papelRasgado } from "../utils/papelRasgado";
+// La fecha de la ceremonia: título, la fecha en dos líneas, un filete corto
+// y la hora. Compacto y con el mismo estilo que Padres. Sección blanca
+// (alterna con las oscuras). Va debajo de Padrinos y arriba del Contador.
+// ── DATOS EDITABLES ───────────────────────────────────────────
+// Ceremonia: 4 de diciembre de 2026, 14:00 (2 de la tarde)
+const anio = 2026;
+const mes = 12; // número normal: 12 = diciembre
+const dia = 4;
+
+const titulo = "Fecha";
+const hora = "14:00";
+// ──────────────────────────────────────────────────────────────
+
+const dias = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
+const meses = [
+    "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
+    "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre",
+];
+
+// El día de la semana y el nombre del mes salen de la fecha: así nunca
+// quedan desacordes si se cambia el día
+const fecha = new Date(anio, mes - 1, dia);
+const diaSemana = dias[fecha.getDay()];
+const nombreMes = meses[mes - 1];
+
+// Borde de papel rasgado, igual que Padres pero con otro dibujo
+const recorte = papelRasgado(11, 31);
+---
+
+<section id="fecha" class="seccion">
+  <div class="papel" style={{ clipPath: recorte }}>
+    <div class="caja nf2-item">
+        <h2 class="titulo">{titulo}</h2>
+        <span class="divisor" aria-hidden="true"></span>
+
+        <!-- Compacto y del mismo tamaño que los nombres de Padres -->
+        <p class="fecha-texto">{diaSemana} {dia} de {nombreMes}</p>
+        <p class="fecha-texto">{anio}</p>
+        <span class="separador" aria-hidden="true"></span>
+        <p class="hora">{hora} horas</p>
+    </div>
+  </div>
+</section>
+
+<style>
+    .seccion {
+        position: relative;
+        width: 100%;
+        /* Sin overflow hidden: la sombra del papel se tiene que ver */
+        filter: drop-shadow(0 3px 5px rgba(0, 0, 0, 0.45));
+    }
+
+    /*
+       Papel blanco con los bordes de arriba y abajo rasgados. El blanco va
+       como imagen y no como color: el modo oscuro forzado oscurece colores
+       pero respeta las imágenes.
+    */
+    .papel {
+        width: 100%;
+        background-image: linear-gradient(#ffffff, #ffffff);
+    }
+
+    .caja {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.6dvh;
+        /* Compacto, igual que Padres, más lo que come el rasgado */
+        padding: calc(5dvh + 22px) 8% calc(5dvh + 22px);
+        text-align: center;
+    }
+
+    /* Great Vibes: sin mayúsculas forzadas ni espaciado entre letras */
+    .titulo {
+        margin: 0;
+        font-family: "Great Vibes", cursive;
+        font-weight: 400;
+        font-size: clamp(2rem, 9.5vw, 2.8rem);
+        line-height: 1.15;
+        letter-spacing: normal;
+        text-transform: none;
+        /* Las colitas de la cursiva se pasan del borde de la caja */
+        padding: 0.15em 0.35em;
+        /* Dorado oscuro: el claro no se lee sobre blanco */
+        background-image: linear-gradient(180deg, #d4a650 0%, #b0812f 55%, #8a5f1e 100%);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+    }
+
+    .divisor {
+        width: min(56%, 200px);
+        height: 1px;
+        margin-bottom: 1.2dvh;
+        background-image: linear-gradient(
+            90deg,
+            rgba(176, 129, 47, 0),
+            rgba(176, 129, 47, 0.85) 50%,
+            rgba(176, 129, 47, 0)
+        );
+    }
+
+    /* Montserrat Light azul noche, del mismo tamaño que los nombres de
+       Padres: normal, sin mayúsculas ni espaciado exagerado */
+    .fecha-texto,
+    .hora {
+        margin: 0;
+        font-family: "Montserrat", Arial, sans-serif;
+        font-weight: 300;
+        font-size: clamp(0.95rem, 4.4vw, 1.2rem);
+        line-height: 1.45;
+        letter-spacing: 0.03em;
+        color: #13294b;
+    }
+
+    /* Filete dorado corto, igual al que separa los nombres en Padres */
+    .separador {
+        display: block;
+        width: 46px;
+        height: 1px;
+        margin: 0.8dvh 0;
+        background-image: linear-gradient(
+            90deg,
+            rgba(176, 129, 47, 0),
+            rgba(176, 129, 47, 0.85) 50%,
+            rgba(176, 129, 47, 0)
+        );
+    }
+
+    .hora {
+        color: #8a5f1e;
+    }
+</style>
+
+<script>
+    import { entrarAlHacerScroll } from "../utils/entradas";
+
+    document.addEventListener("DOMContentLoaded", () => {
+        // Entradas al hacer scroll: cada parte llega de un lado distinto
+        const q = (s: string) => document.querySelector(`#fecha ${s}`);
+        const qa = (s: string) => document.querySelectorAll(`#fecha ${s}`);
+        entrarAlHacerScroll(q(".titulo"), "zoom");
+        entrarAlHacerScroll(q(".divisor"), "zoom", { retraso: 0.15 });
+        const textos = qa(".fecha-texto");
+        entrarAlHacerScroll(textos[0], "izquierda", { retraso: 0.25 });
+        entrarAlHacerScroll(textos[1], "derecha", { retraso: 0.4 });
+        entrarAlHacerScroll(q(".hora"), "abajo", { retraso: 0.55 });
+    });
+</script>

@@ -1,0 +1,156 @@
+---
+// src/components/Padres.astro
+import { papelRasgado } from "../utils/papelRasgado";
+// "Mis padres": los nombres de los padres del graduado, en un cuadro con
+// filete dorado. Va arriba del Contador.
+//
+// El fondo azul lo pone el Layout (fijo); esta sección es transparente.
+// ── DATOS EDITABLES ───────────────────────────────────────────
+const titulo = "Mis padres";
+const padres = ["Franz Elias Calizaya Lucana", "María Verónica Torrez Paredes"];
+// ──────────────────────────────────────────────────────────────
+
+// Borde de papel rasgado (definido en un solo lugar)
+const recorte = papelRasgado(7, 23);
+---
+
+<section id="padres" class="seccion">
+  <div class="papel" style={{ clipPath: recorte }}>
+    <div class="caja np-item">
+        <!-- Todo dentro del cuadro: el título y los nombres -->
+        <div class="cuadro">
+            <h2 class="titulo">{titulo}</h2>
+            <span class="divisor" aria-hidden="true"></span>
+            <div class="nombres">
+                {
+                    padres.map((p, i) => (
+                        <>
+                            {/* Separa al padre de la madre */}
+                            {i > 0 && (
+                                <span class="separador" aria-hidden="true" />
+                            )}
+                            <p class="nombre">{p}</p>
+                        </>
+                    ))
+                }
+            </div>
+        </div>
+    </div>
+  </div>
+</section>
+
+<style>
+    .seccion {
+        position: relative;
+        width: 100%;
+        /* Sin overflow hidden: la sombra del papel se tiene que ver */
+        filter: drop-shadow(0 3px 5px rgba(0, 0, 0, 0.45));
+    }
+
+    /*
+       Papel blanco con los bordes de arriba y abajo rasgados (clip-path
+       puesto desde el servidor). El blanco va como imagen y no como color:
+       el modo oscuro forzado oscurece colores pero respeta las imágenes.
+    */
+    .papel {
+        width: 100%;
+        background-image: linear-gradient(#ffffff, #ffffff);
+    }
+
+    .caja {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 2dvh;
+        /* Mismo espacio arriba y abajo, más lo que come el rasgado */
+        padding: calc(5dvh + 22px) 8% calc(5dvh + 22px);
+        text-align: center;
+    }
+
+    /* Great Vibes: sin mayúsculas forzadas ni espaciado entre letras */
+    .titulo {
+        margin: 0;
+        font-family: "Great Vibes", cursive;
+        font-weight: 400;
+        font-size: clamp(2rem, 9.5vw, 2.8rem);
+        line-height: 1.15;
+        letter-spacing: normal;
+        text-transform: none;
+        /* Las colitas de la cursiva se pasan del borde de la caja */
+        padding: 0.15em 0.35em;
+        /* Dorado más oscuro: el claro no se lee sobre blanco */
+        background-image: linear-gradient(180deg, #d4a650 0%, #b0812f 55%, #8a5f1e 100%);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+    }
+
+    .divisor {
+        position: relative;
+        width: min(56%, 200px);
+        height: 1px;
+        background-image: linear-gradient(
+            90deg,
+            rgba(226, 184, 102, 0),
+            rgba(226, 184, 102, 0.85) 50%,
+            rgba(226, 184, 102, 0)
+        );
+    }
+
+    /* Sobre blanco ya no hace falta cuadro: solo ordena el contenido */
+    .cuadro {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 1.6dvh;
+        width: 100%;
+    }
+
+    .nombres {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.6dvh;
+        margin-top: 1.2dvh;
+    }
+
+    /* Separador pequeño entre padre y madre: un filete dorado corto */
+    .separador {
+        display: block;
+        width: 46px;
+        height: 1px;
+        margin: 1dvh 0;
+        background-image: linear-gradient(
+            90deg,
+            rgba(226, 184, 102, 0),
+            rgba(226, 184, 102, 0.85) 50%,
+            rgba(226, 184, 102, 0)
+        );
+    }
+
+    /* Montserrat Light: fina y sin negrita */
+    .nombre {
+        margin: 0;
+        font-family: "Montserrat", Arial, sans-serif;
+        font-weight: 300;
+        font-size: clamp(0.8rem, 3.9vw, 1.05rem);
+        line-height: 1.45;
+        letter-spacing: 0.03em;
+        color: #13294b;
+    }
+</style>
+
+<script>
+    import { entrarAlHacerScroll } from "../utils/entradas";
+
+    document.addEventListener("DOMContentLoaded", () => {
+        // Entradas al hacer scroll: cada parte llega de un lado distinto
+        const q = (s: string) => document.querySelector(`#padres ${s}`);
+        const qa = (s: string) => document.querySelectorAll(`#padres ${s}`);
+        entrarAlHacerScroll(q(".titulo"), "zoom");
+        entrarAlHacerScroll(q(".divisor"), "zoom", { retraso: 0.15 });
+        const nombres = qa(".nombre");
+        entrarAlHacerScroll(nombres[0], "izquierda", { retraso: 0.25 });
+        entrarAlHacerScroll(nombres[1], "derecha", { retraso: 0.4 });
+    });
+</script>

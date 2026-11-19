@@ -1,0 +1,164 @@
+---
+// src/components/Padrinos.astro
+// Los tres grupos de padrinos, cada uno con su propio título completo en
+// cursiva dorada ("Mis padrinos de promoción", etc.) y sus dos nombres.
+// Entre grupo y grupo, un filete dorado. Va debajo de Padres y arriba del
+// Contador.
+//
+// El fondo azul lo pone el Layout (fijo); esta sección es transparente.
+// ── DATOS EDITABLES ───────────────────────────────────────────
+const grupos = [
+    {
+        titulo: "Mis padrinos de promoción",
+        nombres: ["Elías Benedicto Calizaya Mamani", "Elsa Sirpa Franco"],
+    },
+    {
+        titulo: "Mis padrinos de recuerdo",
+        nombres: ["Fernando Torrez Canido", "María Eugenia Urgel"],
+    },
+    {
+        titulo: "Mis padrinos de arreglo o decoración",
+        nombres: ["Gustavito Nuñez", "Katherine Torrez Paredes"],
+    },
+];
+// ──────────────────────────────────────────────────────────────
+---
+
+<section id="padrinos" class="seccion">
+    <div class="caja nd-item">
+        <!-- Todo dentro del cuadro: cada grupo con su título -->
+        <div class="cuadro">
+            {
+                grupos.map((g, j) => (
+                    <>
+                    {/* Filete entre un grupo y el siguiente */}
+                    {j > 0 && <span class="divisor" aria-hidden="true" />}
+                    <div class="grupo">
+                        <h2 class="titulo">{g.titulo}</h2>
+                        {g.nombres.map((n, i) => (
+                            <>
+                                {/* Separa a un padrino del otro */}
+                                {i > 0 && (
+                                    <span class="separador" aria-hidden="true" />
+                                )}
+                                <p class="nombre">{n}</p>
+                            </>
+                        ))}
+                    </div>
+                    </>
+                ))
+            }
+        </div>
+    </div>
+</section>
+
+<style>
+    .seccion {
+        position: relative;
+        width: 100%;
+        overflow: hidden;
+        /* Sin fondo propio: se ve el azul fijo del Layout, después de la
+           sección blanca de Padres */
+    }
+
+    .caja {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 2dvh;
+        /* Compacto, igual que Padres */
+        padding: 5dvh 8% 5dvh;
+        text-align: center;
+    }
+
+    /* Great Vibes: sin mayúsculas forzadas ni espaciado entre letras */
+    .titulo {
+        margin: 0;
+        font-family: "Great Vibes", cursive;
+        font-weight: 400;
+        /* Títulos largos: más chicos que "Mis padres"; el de arreglo o
+           decoración puede bajar de renglón */
+        font-size: clamp(1.6rem, 7.6vw, 2.2rem);
+        line-height: 1.15;
+        margin-bottom: 0.6dvh;
+        letter-spacing: normal;
+        text-transform: none;
+        /* Las colitas de la cursiva se pasan del borde de la caja */
+        padding: 0.15em 0.35em;
+        /* Dorado claro, para el fondo azul oscuro */
+        background-image: linear-gradient(180deg, #fff6dc 0%, #f0cf86 55%, #c99a4e 100%);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.7));
+    }
+
+    .divisor {
+        position: relative;
+        width: min(56%, 200px);
+        height: 1px;
+        background-image: linear-gradient(
+            90deg,
+            rgba(226, 184, 102, 0),
+            rgba(226, 184, 102, 0.85) 50%,
+            rgba(226, 184, 102, 0)
+        );
+    }
+
+    /* Sobre blanco ya no hace falta cuadro: solo ordena el contenido */
+    .cuadro {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 2.2dvh;
+        width: 100%;
+    }
+
+    /* Separador pequeño entre los dos padrinos: un filete dorado corto */
+    .separador {
+        display: block;
+        width: 46px;
+        height: 1px;
+        margin: 0.6dvh 0;
+        background-image: linear-gradient(
+            90deg,
+            rgba(226, 184, 102, 0),
+            rgba(226, 184, 102, 0.85) 50%,
+            rgba(226, 184, 102, 0)
+        );
+    }
+
+    .grupo {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.8dvh;
+    }
+
+    .nombre {
+        margin: 0;
+        /* Montserrat Light: fina y sin negrita */
+        font-family: "Montserrat", Arial, sans-serif;
+        font-weight: 300;
+        font-size: clamp(0.8rem, 3.9vw, 1.05rem);
+        line-height: 1.45;
+        letter-spacing: 0.03em;
+        color: #ffffff;
+        text-shadow: 0 1px 6px rgba(0, 0, 0, 0.5);
+    }
+</style>
+
+<script>
+    import { entrarAlHacerScroll } from "../utils/entradas";
+
+    document.addEventListener("DOMContentLoaded", () => {
+        // Entradas al hacer scroll: cada parte llega de un lado distinto
+        const q = (s: string) => document.querySelector(`#padrinos ${s}`);
+        const qa = (s: string) => document.querySelectorAll(`#padrinos ${s}`);
+        // Cada grupo entra desde un lado, alternando
+        qa(".grupo").forEach((g, i) =>
+            entrarAlHacerScroll(g, i % 2 === 0 ? "izquierda" : "derecha"),
+        );
+        qa(".divisor").forEach((d) => entrarAlHacerScroll(d, "zoom"));
+    });
+</script>

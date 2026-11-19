@@ -1,0 +1,95 @@
+---
+// src/components/ParFotos.astro
+// Dos instantáneas inclinadas, lado a lado, como en NombresFlores. Se usa en
+// varias partes de la invitación, cada vez con otro par de fotos. Sin fondo
+// propio: se ve el azul fijo del Layout.
+//
+// Uso: <ParFotos fotos={[{ src, alt }, { src, alt, aspecto: "4 / 3" }]} />
+// "aspecto" es opcional (por defecto 4 / 5, vertical).
+export interface Foto {
+    src: string;
+    alt: string;
+    aspecto?: string;
+}
+export interface Props {
+    fotos: [Foto, Foto];
+}
+const { fotos } = Astro.props;
+---
+
+<div class="par">
+    <div class="fotos">
+        {
+            fotos.map((f, i) => (
+                <figure class:list={["polaroid", i === 0 ? "p-izq" : "p-der"]}>
+                    <img
+                        src={f.src}
+                        alt={f.alt}
+                        loading="lazy"
+                        decoding="async"
+                        style={{ aspectRatio: f.aspecto ?? "4 / 5" }}
+                    />
+                </figure>
+            ))
+        }
+    </div>
+</div>
+
+<style>
+    .par {
+        width: 100%;
+        overflow: hidden;
+        /* Sin fondo propio: se ve el azul fijo del Layout */
+        padding: 5dvh 8%;
+        box-sizing: border-box;
+    }
+
+    .fotos {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 6%;
+        width: 100%;
+    }
+
+    /* Mismas instantáneas que en NombresFlores */
+    .polaroid {
+        width: 44%;
+        margin: 0;
+        padding: 3.2% 3.2% 10%;
+        box-sizing: border-box;
+        background-image: linear-gradient(#ffffff, #f1f3f6);
+        box-shadow:
+            0 8px 20px rgba(0, 0, 0, 0.5),
+            0 0 0 1px rgba(255, 255, 255, 0.4);
+    }
+
+    .polaroid img {
+        display: block;
+        width: 100%;
+        height: auto;
+        object-fit: cover;
+    }
+
+    .p-izq {
+        transform: rotate(-4deg) translateY(1.5dvh);
+    }
+
+    .p-der {
+        transform: rotate(3.5deg);
+    }
+</style>
+
+<script>
+    import { entrarAlHacerScroll } from "../utils/entradas";
+
+    document.addEventListener("DOMContentLoaded", () => {
+        // Cada instantánea llega desde su lado, conservando la inclinación
+        document.querySelectorAll(".par .p-izq").forEach((f) =>
+            entrarAlHacerScroll(f, "izquierda"),
+        );
+        document.querySelectorAll(".par .p-der").forEach((f) =>
+            entrarAlHacerScroll(f, "derecha", { retraso: 0.2 }),
+        );
+    });
+</script>

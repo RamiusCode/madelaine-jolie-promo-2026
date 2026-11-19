@@ -1,0 +1,363 @@
+---
+// src/components/Confirmacion.astro
+// Confirmación de asistencia + despedida, con dos fotos instantáneas
+// inclinadas como en NombresFlores. Sin fondo propio: se ve el azul fijo del
+// Layout. Va debajo de Dirección.
+import { frasePases } from "../utils/frasePases";
+
+export interface Props {
+    pases?: number;
+}
+const { pases = 0 } = Astro.props;
+
+// ── DATOS EDITABLES ───────────────────────────────────────────
+const titulo = "Confirma tu asistencia";
+const texto = "Tu presencia hará que este día sea aún más especial";
+const textoCampo = "Escribe tu nombre";
+const textoBoton = "Confirmar";
+const despedida = "Gracias por acompañarme en este momento tan importante";
+const firma = "Madelaine Jolie";
+/*
+   WhatsApp donde llegan las confirmaciones: con código de país y sin el
+   + ni espacios (ej. 5917xxxxxxx). Mientras esté vacío, el botón no lleva a
+   ningún lado.
+*/
+const telefono = "59174469224"; // Bolivia (591) + 74469224
+/*
+   {nombre} se reemplaza por lo que escribe el invitado. Si lo deja vacío va
+   "(mi nombre)" para que lo complete en WhatsApp antes de enviar.
+*/
+const plantilla =
+    "Soy {nombre}. Me complace confirmar mi asistencia a la promoción de Madelaine Jolie Calizaya Torrez, que se realizará el viernes 4 de diciembre de 2026. ¡Estaré sin falta! Muchas gracias.";
+const nombreVacio = "(mi nombre)";
+/*
+   Fotos: poner la ruta de cada una (comprimida, menos de 300 KB), por
+   ejemplo "/imagenes/foto1.webp". Mientras esté vacía se dibuja el marco con
+   el birrete en su lugar.
+*/
+const fotos = [
+    { src: "/imagenes/foto-banda.webp", alt: "Estudiante con el uniforme de la banda" },
+    { src: "/imagenes/foto-promocion-recorte.webp", alt: "Promoción 2026 del colegio" },
+];
+// ──────────────────────────────────────────────────────────────
+
+const armarEnlace = (nombre: string) =>
+    telefono
+        ? `https://wa.me/${telefono}?text=${encodeURIComponent(plantilla.replace("{nombre}", nombre))}`
+        : "#";
+const enlace = armarEnlace(nombreVacio);
+const fraseDePases = frasePases(pases);
+---
+
+<section id="confirmacion" class="seccion">
+    <div class="caja">
+        <div class="bloque">
+            <h2 class="titulo">{titulo}</h2>
+            <span class="divisor" aria-hidden="true"></span>
+            <p class="texto">{texto}</p>
+            {fraseDePases && <p class="pases">{fraseDePases}</p>}
+
+            <label class="campo">
+                <span class="solo-lectores">{textoCampo}</span>
+                <input
+                    id="cf-nombre"
+                    type="text"
+                    placeholder={textoCampo}
+                    autocomplete="name"
+                    maxlength="60"
+                />
+            </label>
+
+            <a
+                id="cf-boton"
+                class="boton"
+                href={enlace}
+                target="_blank"
+                rel="noopener"
+                data-telefono={telefono}
+                data-plantilla={plantilla}
+                data-vacio={nombreVacio}
+            >
+                {textoBoton}
+            </a>
+        </div>
+
+        <!-- Despedida con las dos fotos inclinadas -->
+        <div class="fotos">
+            {
+                fotos.map((f, i) => (
+                    <figure class:list={["polaroid", i === 0 ? "p-izq" : "p-der"]}>
+                        {f.src ? (
+                            <img src={f.src} alt={f.alt} class="foto" loading="lazy" />
+                        ) : (
+                            <div class="foto vacia" role="img" aria-label={f.alt}>
+                                <img
+                                    src="/imagenes/portada-sombrero.webp"
+                                    alt=""
+                                    width="700"
+                                    height="467"
+                                    aria-hidden="true"
+                                />
+                            </div>
+                        )}
+                    </figure>
+                ))
+            }
+        </div>
+
+        <div class="cierre">
+            <img
+                class="escudo"
+                src="/imagenes/escudo-colegio.webp"
+                alt="Escudo de la U. E. Libertador Simón Bolívar"
+                width="437"
+                height="480"
+                loading="lazy"
+                decoding="async"
+            />
+            <span class="divisor" aria-hidden="true"></span>
+            <p class="despedida">{despedida}</p>
+            <p class="firma">{firma}</p>
+        </div>
+    </div>
+</section>
+
+<style>
+    .seccion {
+        position: relative;
+        width: 100%;
+        overflow: hidden;
+        /* Sin fondo propio: se ve el azul fijo del Layout */
+    }
+
+    .caja {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 4dvh;
+        padding: 6dvh 8% 7dvh;
+        text-align: center;
+    }
+
+    .bloque,
+    .cierre {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 1.6dvh;
+        width: 100%;
+    }
+
+    /* Great Vibes: sin mayúsculas forzadas ni espaciado entre letras */
+    .titulo,
+    .firma {
+        margin: 0;
+        font-family: "Great Vibes", cursive;
+        font-weight: 400;
+        line-height: 1.15;
+        letter-spacing: normal;
+        text-transform: none;
+        /* Las colitas de la cursiva se pasan del borde de la caja */
+        padding: 0.15em 0.35em;
+        /* Dorado claro, para el fondo azul oscuro */
+        background-image: linear-gradient(180deg, #fff6dc 0%, #f0cf86 55%, #c99a4e 100%);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.7));
+    }
+
+    .titulo {
+        font-size: clamp(2rem, 9.5vw, 2.8rem);
+    }
+
+    .firma {
+        font-size: clamp(1.8rem, 8.5vw, 2.5rem);
+    }
+
+    .divisor {
+        width: min(56%, 200px);
+        height: 1px;
+        background-image: linear-gradient(
+            90deg,
+            rgba(226, 184, 102, 0),
+            rgba(226, 184, 102, 0.85) 50%,
+            rgba(226, 184, 102, 0)
+        );
+    }
+
+    /* Montserrat Light blanco, fina */
+    .texto,
+    .despedida {
+        margin: 0;
+        max-width: 90%;
+        font-family: "Montserrat", Arial, sans-serif;
+        font-weight: 300;
+        font-size: clamp(0.85rem, 4vw, 1.05rem);
+        line-height: 1.55;
+        letter-spacing: 0.03em;
+        color: #ffffff;
+        text-shadow: 0 1px 6px rgba(0, 0, 0, 0.5);
+    }
+
+    .pases {
+        margin: 0;
+        font-family: "Montserrat", Arial, sans-serif;
+        font-weight: 300;
+        font-size: clamp(0.85rem, 4vw, 1.05rem);
+        letter-spacing: 0.04em;
+        color: #f0cf86;
+        text-shadow: 0 1px 6px rgba(0, 0, 0, 0.5);
+    }
+
+    .campo {
+        display: block;
+        width: min(78%, 280px);
+        margin-top: 0.6dvh;
+    }
+
+    .campo input {
+        width: 100%;
+        box-sizing: border-box;
+        padding: 0.7em 0.2em;
+        font-family: "Montserrat", Arial, sans-serif;
+        font-weight: 300;
+        font-size: 1rem; /* 16px: iOS no hace zoom al escribir */
+        text-align: center;
+        color: #ffffff;
+        background: transparent;
+        border: 0;
+        border-bottom: 1px solid rgba(226, 184, 102, 0.7);
+        border-radius: 0;
+        outline: none;
+    }
+
+    .campo input::placeholder {
+        color: rgba(255, 255, 255, 0.6);
+    }
+
+    .campo input:focus {
+        border-bottom-color: #f0cf86;
+    }
+
+    /* Píldora dorada, una sola línea */
+    .boton {
+        display: inline-block;
+        padding: 0.8em 2.4em;
+        font-family: "Montserrat", Arial, sans-serif;
+        font-weight: 400;
+        font-size: clamp(0.78rem, 3.4vw, 0.9rem);
+        letter-spacing: 0.06em;
+        white-space: nowrap;
+        text-decoration: none;
+        color: #13294b;
+        border-radius: 999px;
+        background-image: linear-gradient(180deg, #fff1c9 0%, #e2b866 55%, #c99a4e 100%);
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+        -webkit-tap-highlight-color: transparent;
+        transition: transform 0.2s ease;
+    }
+
+    .boton:active {
+        transform: scale(0.97);
+    }
+
+    .escudo {
+        display: block;
+        height: min(14dvh, 26vw);
+        width: auto;
+        filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.6));
+    }
+
+    .solo-lectores {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip-path: inset(50%);
+        white-space: nowrap;
+    }
+
+    /* ── Instantáneas (mismas que en NombresFlores) ─────────── */
+    .fotos {
+        display: flex;
+        justify-content: center;
+        gap: 6%;
+        width: 100%;
+        padding: 1dvh 0;
+    }
+
+    .polaroid {
+        width: 44%;
+        margin: 0;
+        padding: 3.2% 3.2% 10%;
+        box-sizing: border-box;
+        background-image: linear-gradient(#ffffff, #f1f3f6);
+        box-shadow:
+            0 8px 20px rgba(0, 0, 0, 0.5),
+            0 0 0 1px rgba(255, 255, 255, 0.4);
+    }
+
+    .foto {
+        display: block;
+        width: 100%;
+        aspect-ratio: 4 / 5;
+        object-fit: cover;
+    }
+
+    /* Mientras no hay foto: un cuadro azul con el birrete */
+    .foto.vacia {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-image: linear-gradient(160deg, #123066 0%, #0a1a3a 55%, #0e4d4a 100%);
+    }
+
+    .foto.vacia img {
+        width: 62%;
+        height: auto;
+        opacity: 0.85;
+    }
+
+    .p-izq {
+        transform: rotate(-4deg) translateY(1.5dvh);
+    }
+
+    .p-der {
+        transform: rotate(3.5deg);
+    }
+</style>
+
+<script>
+    import { entrarAlHacerScroll } from "../utils/entradas";
+
+    document.addEventListener("DOMContentLoaded", () => {
+        // El nombre escrito va dentro del mensaje de WhatsApp
+        const boton = document.getElementById("cf-boton") as HTMLAnchorElement | null;
+        const campo = document.getElementById("cf-nombre") as HTMLInputElement | null;
+        if (boton && campo && boton.dataset.telefono) {
+            const armar = () => {
+                const nombre = campo.value.trim() || boton.dataset.vacio || "";
+                const texto = (boton.dataset.plantilla ?? "").replace("{nombre}", nombre);
+                boton.href = `https://wa.me/${boton.dataset.telefono}?text=${encodeURIComponent(texto)}`;
+            };
+            campo.addEventListener("input", armar);
+            armar();
+        }
+
+        // Entradas al hacer scroll: cada parte llega de un lado distinto
+        const q = (s: string) => document.querySelector(`#confirmacion ${s}`);
+        entrarAlHacerScroll(q(".titulo"), "zoom");
+        entrarAlHacerScroll(q(".bloque .divisor"), "zoom", { retraso: 0.15 });
+        entrarAlHacerScroll(q(".texto"), "izquierda", { retraso: 0.25 });
+        entrarAlHacerScroll(q(".pases"), "derecha", { retraso: 0.3 });
+        entrarAlHacerScroll(q(".campo"), "derecha", { retraso: 0.4 });
+        entrarAlHacerScroll(q(".boton"), "zoom", { retraso: 0.55 });
+        entrarAlHacerScroll(q(".p-izq"), "izquierda");
+        entrarAlHacerScroll(q(".p-der"), "derecha", { retraso: 0.2 });
+        entrarAlHacerScroll(q(".escudo"), "zoom");
+        entrarAlHacerScroll(q(".cierre .divisor"), "zoom", { retraso: 0.15 });
+        entrarAlHacerScroll(q(".despedida"), "abajo", { retraso: 0.15 });
+        entrarAlHacerScroll(q(".firma"), "zoom", { retraso: 0.3 });
+    });
+</script>

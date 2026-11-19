@@ -1,0 +1,229 @@
+---
+// src/layouts/Layout.astro
+import "../styles/global.css";
+export interface Props {
+  title: string;
+}
+const { title } = Astro.props;
+
+/*
+   ── La vista previa al compartir el link ──────────────────────
+   La imagen va en 1200x630, que es la franja que usa WhatsApp. Si se
+   pone la portada tal cual —que es vertical— WhatsApp le corta arriba y
+   abajo y se ve un pedazo del medio; por eso miniatura-whatsapp.jpg
+   tiene la portada entera adentro y los costados rellenos.
+
+   La ruta se arma con Astro.site (la dirección del config): WhatsApp no
+   sigue rutas relativas, necesita la dirección completa.
+
+   No va og:description a propósito: sin ella WhatsApp muestra la imagen
+   grande y solo el nombre debajo, que es lo que se busca. Con
+   descripción agrega un párrafo de texto que ensucia la tarjeta.
+*/
+const miniatura = new URL('/imagenes/miniatura-whatsapp.jpg', Astro.site).href;
+const paginaActual = new URL(Astro.url.pathname, Astro.site).href;
+/*
+   Al compartir el link se quiere SOLO la imagen, sin texto. WhatsApp
+   siempre pone un título y, si falta og:title, usa el <title> de la
+   pestaña. Por eso el título de la vista previa es un carácter en blanco
+   (U+2800): la tarjeta queda con la imagen sola. La pestaña del navegador
+   sigue con su título normal.
+*/
+const tituloPreview = '⠀';
+const textoImagen = 'Madelaine Jolie, Promoción 2026';
+
+/*
+   Motas de luz que suben por detrás de todas las secciones, como en la
+   portada. Los valores se calculan acá y no en el navegador para que el
+   servidor y el cliente dibujen exactamente lo mismo.
+*/
+const motas = Array.from({ length: 24 }, (_, i) => ({
+  izq: 4 + ((i * 37) % 92),
+  dur: 9 + ((i * 3) % 8),
+  retraso: (i * 1.3) % 11,
+  tam: 2 + (i % 3) * 1.2,
+  deriva: ((i * 17) % 50) - 25,
+  verde: i % 2 === 0,
+}));
+---
+
+<!doctype html>
+<html lang="es" class="m-0 p-0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="only light" />
+    <link rel="icon" type="image/webp" href="/imagenes/escudo-colegio.webp" />
+    <meta name="generator" content={Astro.generator} />
+    <title>{title}</title>
+
+    <!-- ── Vista previa al compartir el link ─────────────────── -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={tituloPreview} />
+    <meta property="og:url" content={paginaActual} />
+    <meta property="og:image" content={miniatura} />
+    <meta property="og:image:secure_url" content={miniatura} />
+    <meta property="og:image:type" content="image/jpeg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content={textoImagen} />
+    <meta property="og:locale" content="es_ES" />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={tituloPreview} />
+    <meta name="twitter:image" content={miniatura} />
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <!-- Un solo pedido: Great Vibes + Cormorant Garamond en los grosores
+         que usan los componentes (400 a 700, normal y cursiva) -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400;1,500;1,600&family=Great+Vibes&family=Montserrat:wght@300;400&display=swap"
+      rel="stylesheet"
+    />
+
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      /* Forzar modo claro y evitar dark mode del navegador */
+      html {
+        width: 100%;
+        height: 100%;
+        overflow-x: hidden;
+        color-scheme: only light;
+        /* Sin barra de desplazamiento visible: la invitación se desliza
+           igual con el dedo o la rueda, pero no se ve la barra gris al
+           costado (en PC y en la vista de celular del navegador) */
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+      }
+
+      html::-webkit-scrollbar,
+      body::-webkit-scrollbar {
+        display: none;
+      }
+
+      body {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        min-height: 100vh;
+        overflow-x: hidden;
+        color-scheme: only light;
+        /* Fuera de la columna móvil (tablet / PC): el mismo azul noche.
+           Declarado como imagen y no como color, por el modo oscuro */
+        background-image: linear-gradient(#050d22, #050d22);
+      }
+
+      /* La invitación SIEMPRE se ve como celular: columna centrada */
+      main {
+        width: 100%;
+        max-width: 430px;
+        margin: 0 auto;
+        min-height: 100vh;
+        /*
+           Fondo azul/verde de la graduación, fijo y detrás de todas las
+           secciones. Va como imagen (webp liviana) con un degradado azul
+           debajo por si tarda en cargar; el modo oscuro forzado oscurece
+           colores pero respeta las imágenes.
+        */
+        background-image:
+          url("/imagenes/portada-fondo.webp"),
+          linear-gradient(#050d22, #050d22);
+        background-repeat: no-repeat;
+        background-attachment: fixed;
+        background-position: center;
+        background-size: cover;
+        box-shadow: 0 0 40px rgba(0, 0, 0, 0.08);
+        /* Contexto propio: las motas (z -1) quedan sobre el fondo de main
+           y debajo de todas las secciones */
+        position: relative;
+        isolation: isolate;
+      }
+
+      /* ── Motas que suben, en toda la invitación ─────────────── */
+      .motas-fondo {
+        position: fixed;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        width: 100%;
+        max-width: 430px;
+        margin: 0 auto;
+        z-index: -1;
+        pointer-events: none;
+        overflow: hidden;
+      }
+
+      .mota {
+        position: absolute;
+        bottom: 2%;
+        border-radius: 50%;
+        background-image: radial-gradient(
+          circle,
+          rgba(215, 235, 255, 1) 0%,
+          rgba(150, 200, 255, 0) 70%
+        );
+        box-shadow: 0 0 6px rgba(170, 215, 255, 0.8);
+        animation-name: subir;
+        animation-timing-function: linear;
+        animation-iteration-count: infinite;
+        opacity: 0;
+      }
+
+      .mota.verde {
+        background-image: radial-gradient(
+          circle,
+          rgba(190, 255, 225, 1) 0%,
+          rgba(60, 200, 150, 0) 70%
+        );
+        box-shadow: 0 0 6px rgba(90, 230, 180, 0.8);
+      }
+
+      @keyframes subir {
+        0% {
+          transform: translate(0, 0);
+          opacity: 0;
+        }
+        12% {
+          opacity: 0.9;
+        }
+        75% {
+          opacity: 0.45;
+        }
+        100% {
+          transform: translate(var(--deriva), -96dvh);
+          opacity: 0;
+        }
+      }
+
+      /* Quien pidió menos movimiento, recibe menos movimiento */
+      @media (prefers-reduced-motion: reduce) {
+        .motas-fondo {
+          display: none;
+        }
+      }
+    </style>
+  </head>
+  <body class="min-h-screen m-0 p-0">
+    <main class="m-0 p-0 overflow-x-hidden">
+      <!-- Motas de luz que suben, detrás de todas las secciones -->
+      <div class="motas-fondo" aria-hidden="true">
+        {
+          motas.map((c) => (
+            <span
+              class:list={["mota", { verde: c.verde }]}
+              style={`left:${c.izq}%; width:${c.tam}px; height:${c.tam}px; --deriva:${c.deriva}px; animation-duration:${c.dur}s; animation-delay:-${c.retraso}s;`}
+            />
+          ))
+        }
+      </div>
+      <slot />
+    </main>
+  </body>
+</html>

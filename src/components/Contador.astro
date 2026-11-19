@@ -1,0 +1,216 @@
+---
+// src/components/Contador.astro
+// Cuenta regresiva hacia la ceremonia de graduación. Va justo debajo de
+// NombresFlores: "Queremos celebrar contigo / ESTE DÍA TAN ESPECIAL." y
+// debajo días : horas : minutos : segundos.
+//
+// El fondo azul lo pone el Layout (fijo); esta sección es transparente.
+// ── DATOS EDITABLES ───────────────────────────────────────────
+// Ceremonia: 4 de diciembre de 2026, 14:00 (2 de la tarde)
+const anio = 2026;
+const mes = 12; // número normal: 12 = diciembre
+const dia = 4;
+const hora = "14:00";
+
+const textoArriba = "Queremos celebrar contigo";
+const textoAbajo = "Este día tan especial.";
+// ──────────────────────────────────────────────────────────────
+
+// Va sin zona horaria: se toma en la hora del celular del invitado
+const dos = (n: number) => String(n).padStart(2, "0");
+const fechaIso = `${anio}-${dos(mes)}-${dos(dia)}T${hora}:00`;
+
+const unidades = [
+    { u: "d", rotulo: "Días" },
+    { u: "h", rotulo: "Horas" },
+    { u: "m", rotulo: "Minutos" },
+    { u: "s", rotulo: "Segundos" },
+];
+---
+
+<section id="contador" class="seccion">
+    <div class="caja nc-item">
+        <p class="arriba">{textoArriba}</p>
+        <p class="abajo">{textoAbajo}</p>
+        <span class="divisor" aria-hidden="true"></span>
+
+        <!-- Días : horas : minutos : segundos -->
+        <div
+            class="cuenta"
+            id="nc-cuenta"
+            data-fecha={fechaIso}
+            role="timer"
+            aria-label="Cuenta regresiva para la ceremonia de graduación"
+        >
+            {
+                unidades.map((x, i) => (
+                    <>
+                        {i > 0 && <i class="dos-puntos">:</i>}
+                        <div class="unidad">
+                            <span class="numero" data-u={x.u}>00</span>
+                            <span class="rotulo">{x.rotulo}</span>
+                        </div>
+                    </>
+                ))
+            }
+        </div>
+    </div>
+</section>
+
+<style>
+    .seccion {
+        position: relative;
+        width: 100%;
+        overflow: hidden;
+        /* Transparente: se ve el fondo fijo del Layout */
+    }
+
+    .caja {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 1.6dvh;
+        padding: 6dvh 6% 9dvh;
+        text-align: center;
+    }
+
+    /* Great Vibes: sin mayúsculas forzadas ni espaciado entre letras */
+    .arriba {
+        margin: 0;
+        font-family: "Great Vibes", cursive;
+        font-weight: 400;
+        font-size: clamp(1.9rem, 9vw, 2.6rem);
+        line-height: 1.2;
+        letter-spacing: normal;
+        text-transform: none;
+        color: #ffffff;
+        text-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
+        /* Las colitas de la cursiva se pasan un poco del borde */
+        padding: 0.1em 0.3em;
+    }
+
+    .abajo {
+        margin: 0;
+        font-family: "Cormorant Garamond", Georgia, serif;
+        font-weight: 500;
+        font-size: clamp(0.85rem, 3.9vw, 1.1rem);
+        text-transform: uppercase;
+        letter-spacing: 0.26em;
+        color: #ffffff;
+        text-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
+    }
+
+    .divisor {
+        position: relative;
+        width: min(56%, 200px);
+        height: 1px;
+        margin: 1dvh 0 1.4dvh;
+        background-image: linear-gradient(
+            90deg,
+            rgba(226, 184, 102, 0),
+            rgba(226, 184, 102, 0.85) 50%,
+            rgba(226, 184, 102, 0)
+        );
+    }
+
+    .divisor::after {
+        content: "";
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        width: 7px;
+        height: 7px;
+        transform: translate(-50%, -50%) rotate(45deg);
+        background-image: linear-gradient(135deg, #fff3cf, #c99a4e);
+        box-shadow: 0 0 6px rgba(255, 200, 110, 0.5);
+    }
+
+    /* ── Cuenta regresiva ───────────────────────────────────── */
+    .cuenta {
+        display: flex;
+        align-items: flex-start;
+        justify-content: center;
+        gap: 2.2%;
+        width: 100%;
+    }
+
+    .unidad {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.7dvh;
+        min-width: 17%;
+    }
+
+    /* Números del mismo alto y del mismo ancho: la cuenta no salta */
+    .numero {
+        font-family: "Cormorant Garamond", Georgia, serif;
+        font-weight: 500;
+        font-variant-numeric: lining-nums tabular-nums;
+        font-size: clamp(2rem, 11vw, 3rem);
+        line-height: 1;
+        color: #ffffff;
+        text-shadow: 0 2px 10px rgba(0, 0, 0, 0.6);
+    }
+
+    .rotulo {
+        font-family: "Cormorant Garamond", Georgia, serif;
+        font-weight: 500;
+        font-size: clamp(0.55rem, 2.5vw, 0.72rem);
+        text-transform: uppercase;
+        letter-spacing: 0.18em;
+        color: rgba(205, 225, 245, 0.85);
+    }
+
+    .dos-puntos {
+        font-style: normal;
+        font-family: "Cormorant Garamond", Georgia, serif;
+        font-size: clamp(1.6rem, 8.5vw, 2.4rem);
+        line-height: 1.05;
+        color: #e2b866;
+        text-shadow: 0 0 8px rgba(255, 200, 110, 0.35);
+    }
+</style>
+
+<script>
+    import { entrarAlHacerScroll } from "../utils/entradas";
+
+    document.addEventListener("DOMContentLoaded", () => {
+        const cuenta = document.getElementById("nc-cuenta");
+        if (!cuenta) return;
+
+        const destino = new Date(cuenta.dataset.fecha ?? "").getTime();
+        const nums: Record<string, HTMLElement | null> = {
+            d: cuenta.querySelector('[data-u="d"]'),
+            h: cuenta.querySelector('[data-u="h"]'),
+            m: cuenta.querySelector('[data-u="m"]'),
+            s: cuenta.querySelector('[data-u="s"]'),
+        };
+
+        const dos = (n: number) => String(n).padStart(2, "0");
+
+        const pintar = () => {
+            // Si ya pasó la hora, queda todo en cero
+            let resto = Math.max(0, Math.floor((destino - Date.now()) / 1000));
+            if (Number.isNaN(resto)) resto = 0;
+            const d = Math.floor(resto / 86400);
+            const h = Math.floor((resto % 86400) / 3600);
+            const m = Math.floor((resto % 3600) / 60);
+            const s = resto % 60;
+            if (nums.d) nums.d.textContent = dos(d);
+            if (nums.h) nums.h.textContent = dos(h);
+            if (nums.m) nums.m.textContent = dos(m);
+            if (nums.s) nums.s.textContent = dos(s);
+        };
+
+        pintar();
+        window.setInterval(pintar, 1000);
+
+        // Entradas al hacer scroll: cada parte llega de un lado distinto
+        const q = (s: string) => document.querySelector(`#contador ${s}`);
+        entrarAlHacerScroll(q(".arriba"), "izquierda");
+        entrarAlHacerScroll(q(".abajo"), "derecha", { retraso: 0.15 });
+        entrarAlHacerScroll(q(".divisor"), "zoom", { retraso: 0.25 });
+        entrarAlHacerScroll(q(".cuenta"), "abajo", { retraso: 0.35 });
+    });
+</script>

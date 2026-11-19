@@ -1,0 +1,196 @@
+---
+// src/components/Direccion.astro
+import { papelRasgado } from "../utils/papelRasgado";
+// Dónde es la recepción: título, ícono de ubicación, "En su domicilio
+// particular", la dirección escrita y el botón que abre Google Maps.
+// Sección blanca (alterna con las oscuras). Va debajo del Contador.
+// ── DATOS EDITABLES ───────────────────────────────────────────
+const titulo = "Recepción social";
+const lugar = "En su domicilio particular";
+// Dirección escrita. El enlace de Maps solo trae coordenadas: acá solo se
+// pudo ubicar el barrio. Completar con la calle y el número que dé el cliente.
+const direccion = "Barrio San Martín, Santa Cruz de la Sierra";
+// Hora de la recepción en formato de 24 horas (14:00 = 2 de la tarde)
+const hora = "14:00";
+const textoBoton = "Ver ubicación";
+const enlaceMapa = "https://maps.app.goo.gl/aavKRE8rBRqdgWam9";
+// ──────────────────────────────────────────────────────────────
+
+// Borde de papel rasgado, igual que Padres y Fecha pero con otro dibujo
+const recorte = papelRasgado(17, 41);
+---
+
+<section id="direccion" class="seccion">
+  <div class="papel" style={{ clipPath: recorte }}>
+    <div class="caja nd2-item">
+        <h2 class="titulo">{titulo}</h2>
+        <span class="divisor" aria-hidden="true"></span>
+
+        <!-- Ícono de ubicación: la imagen de la carpeta de imágenes -->
+        <img
+            class="icono"
+            src="/imagenes/direccion-icono.webp"
+            width="240"
+            height="360"
+            alt=""
+            aria-hidden="true"
+            loading="lazy"
+            decoding="async"
+        />
+
+        <p class="lugar">{lugar}</p>
+        <p class="hora">{hora} horas</p>
+        <p class="direccion">{direccion}</p>
+
+        <a
+            class="boton"
+            href={enlaceMapa}
+            target="_blank"
+            rel="noopener"
+        >
+            {textoBoton}
+        </a>
+    </div>
+  </div>
+</section>
+
+<style>
+    .seccion {
+        position: relative;
+        width: 100%;
+        /* Sin overflow hidden: la sombra del papel se tiene que ver */
+        filter: drop-shadow(0 3px 5px rgba(0, 0, 0, 0.45));
+    }
+
+    /*
+       Papel blanco con los bordes de arriba y abajo rasgados. El blanco va
+       como imagen y no como color: el modo oscuro forzado oscurece colores
+       pero respeta las imágenes.
+    */
+    .papel {
+        width: 100%;
+        background-image: linear-gradient(#ffffff, #ffffff);
+    }
+
+    .caja {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 1.4dvh;
+        padding: calc(5dvh + 22px) 8% calc(6dvh + 22px);
+        text-align: center;
+    }
+
+    /* Great Vibes: sin mayúsculas forzadas ni espaciado entre letras */
+    .titulo,
+    .lugar {
+        margin: 0;
+        font-family: "Great Vibes", cursive;
+        font-weight: 400;
+        line-height: 1.15;
+        letter-spacing: normal;
+        text-transform: none;
+        /* Las colitas de la cursiva se pasan del borde de la caja */
+        padding: 0.15em 0.35em;
+        /* Dorado oscuro: el claro no se lee sobre blanco */
+        background-image: linear-gradient(180deg, #d4a650 0%, #b0812f 55%, #8a5f1e 100%);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+    }
+
+    .titulo {
+        font-size: clamp(2rem, 9.5vw, 2.8rem);
+    }
+
+    .lugar {
+        font-size: clamp(1.6rem, 7.6vw, 2.2rem);
+    }
+
+    .divisor {
+        width: min(56%, 200px);
+        height: 1px;
+        margin-bottom: 0.6dvh;
+        background-image: linear-gradient(
+            90deg,
+            rgba(176, 129, 47, 0),
+            rgba(176, 129, 47, 0.85) 50%,
+            rgba(176, 129, 47, 0)
+        );
+    }
+
+    .icono {
+        display: block;
+        width: clamp(3.4rem, 15vw, 4.2rem);
+        height: auto;
+        flex-shrink: 0;
+        filter: drop-shadow(0 4px 6px rgba(19, 41, 75, 0.25));
+    }
+
+    /* Montserrat Light azul noche, igual que Padres y Fecha */
+    .direccion {
+        margin: 0;
+        max-width: 90%;
+        font-family: "Montserrat", Arial, sans-serif;
+        font-weight: 300;
+        font-size: clamp(0.95rem, 4.4vw, 1.2rem);
+        line-height: 1.45;
+        letter-spacing: 0.03em;
+        color: #13294b;
+    }
+
+    /* La hora, en dorado oscuro como en Fecha */
+    .hora {
+        margin: 0;
+        font-family: "Montserrat", Arial, sans-serif;
+        font-weight: 300;
+        font-size: clamp(0.95rem, 4.4vw, 1.2rem);
+        line-height: 1.45;
+        letter-spacing: 0.03em;
+        color: #8a5f1e;
+    }
+
+    /*
+       Botón de píldora azul noche con filete dorado fino. El texto va en
+       una sola línea y más chico, así no se parte.
+    */
+    .boton {
+        display: inline-block;
+        margin-top: 1.6dvh;
+        padding: 0.8em 1.8em;
+        font-family: "Montserrat", Arial, sans-serif;
+        font-weight: 300;
+        font-size: clamp(0.72rem, 3.2vw, 0.85rem);
+        letter-spacing: 0.06em;
+        white-space: nowrap;
+        text-decoration: none;
+        color: #ffffff;
+        border-radius: 999px;
+        border: 1px solid rgba(212, 166, 80, 0.8);
+        background-image: linear-gradient(180deg, #1b3a6b 0%, #0d1f40 100%);
+        box-shadow: 0 6px 16px rgba(19, 41, 75, 0.25);
+        -webkit-tap-highlight-color: transparent;
+        transition: transform 0.2s ease;
+    }
+
+    .boton:active {
+        transform: scale(0.97);
+    }
+</style>
+
+<script>
+    import { entrarAlHacerScroll } from "../utils/entradas";
+
+    document.addEventListener("DOMContentLoaded", () => {
+        // Entradas al hacer scroll: cada parte llega de un lado distinto
+        const q = (s: string) => document.querySelector(`#direccion ${s}`);
+        const qa = (s: string) => document.querySelectorAll(`#direccion ${s}`);
+        entrarAlHacerScroll(q(".titulo"), "izquierda");
+        entrarAlHacerScroll(q(".divisor"), "zoom", { retraso: 0.1 });
+        entrarAlHacerScroll(q(".icono"), "zoom", { retraso: 0.25 });
+        entrarAlHacerScroll(q(".lugar"), "derecha", { retraso: 0.35 });
+        entrarAlHacerScroll(q(".hora"), "abajo", { retraso: 0.45 });
+        entrarAlHacerScroll(q(".direccion"), "abajo", { retraso: 0.55 });
+        entrarAlHacerScroll(q(".boton"), "zoom", { retraso: 0.7 });
+    });
+</script>
