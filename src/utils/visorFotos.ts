@@ -71,7 +71,7 @@ export function iniciarVisorFotos() {
 
     document.addEventListener("click", (e) => {
         const objetivo = e.target as Element | null;
-        const foto = objetivo?.closest?.(".polaroid img") as HTMLImageElement | null;
+        const foto = objetivo?.closest?.(".polaroid img, .foto-promo img") as HTMLImageElement | null;
         // El marco con el birrete (sin foto) no se agranda
         if (!foto || foto.closest(".vacia")) return;
         abrir(foto);
